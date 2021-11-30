@@ -13,7 +13,7 @@ public class TestDocument extends javafx.application.Application {
 		stage.setScene(new javafx.scene.Scene(vbox));
 		Board board = new Board();
 		board.addClip(new ClipRect(100, 100, 300, 200, Color.BLUE));
-		board.addClip(new ClipEllipse(200, 150, 400, 250, Color.RED));
+		//board.addClip(new ClipEllipse(200, 150, 400, 250, Color.RED));
 		board.draw(canvas.getGraphicsContext2D());
 		stage.show();
 	}
