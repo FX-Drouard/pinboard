@@ -9,6 +9,14 @@ public abstract class AbstractClip implements Clip{
 	private double right;
 	private double bottom;
 	private Color color;
+	
+	public AbstractClip(double left, double top, double right, double bottom, Color color) {
+		this.left=left;
+		this.top=top;
+		this.right=right;
+		this.bottom=bottom;
+		this.color=color;
+	}
 
 	@Override
 	public double getTop() {

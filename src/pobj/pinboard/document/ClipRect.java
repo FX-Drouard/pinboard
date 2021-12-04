@@ -6,18 +6,14 @@ import javafx.scene.paint.Color;
 public class ClipRect extends AbstractClip implements Clip{
 	
 	public ClipRect (double left, double top, double right, double bottom, Color color) {
-		setLeft(left);
-		setRight(right);
-		setBottom(bottom);
-		setTop(top);
-		setColor(color);
+		super(left,top,right,bottom,color);
 	}
 	
 	@Override
 	public void draw(GraphicsContext ctx) {
 		// TODO Auto-generated method stub
 		ctx.setFill(getColor());
-		ctx.fillRect(getTop(), getRight(), getLeft(), getBottom());
+		ctx.fillRect(getLeft(), getTop(), getRight()-getLeft(), getBottom()-getTop());
 		ctx.setStroke(Color.BLUE);
 		
 	}
