@@ -33,9 +33,8 @@ public class Board{
 	
 	public void draw(GraphicsContext gc) {
 		gc.setFill(Color.WHITE);
-		gc.fillRect(0, gc.getCanvas().getWidth(), 0, gc.getCanvas().getHeight());
+		gc.fillRect(0,0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
 		gc.setStroke(Color.BLACK);
-		
 		for(Clip c: clips) {
 			c.draw(gc);
 		}

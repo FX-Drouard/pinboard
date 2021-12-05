@@ -14,7 +14,8 @@ public class ClipEllipse extends AbstractClip implements Clip {
 		// TODO Auto-generated method stub
 		ctx.setFill(getColor());
 		ctx.fillOval(getLeft(), getTop(), getRight()-getLeft(), getBottom()-getTop());
-		ctx.setStroke(Color.RED);
+		ctx.setStroke(Color.BLACK);
+		ctx.strokeOval(getLeft(), getTop(), getRight()-getLeft(), getBottom()-getTop());
 	}
 
 	@Override

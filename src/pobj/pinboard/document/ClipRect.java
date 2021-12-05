@@ -14,7 +14,8 @@ public class ClipRect extends AbstractClip implements Clip{
 		// TODO Auto-generated method stub
 		ctx.setFill(getColor());
 		ctx.fillRect(getLeft(), getTop(), getRight()-getLeft(), getBottom()-getTop());
-		ctx.setStroke(Color.BLUE);
+		ctx.setStroke(Color.BLACK);
+		ctx.strokeRect(getLeft(), getTop(), getRight()-getLeft(), getBottom()-getTop());
 		
 	}
 
