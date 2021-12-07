@@ -117,7 +117,9 @@ public class EditorWindow implements EditorInterface {
 			@Override
 			public void handle(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				tool.press(ei, arg0);
+				if(tool!=null) {
+					tool.press(ei, arg0);
+				}
 			}
 			
 		});
@@ -126,9 +128,11 @@ public class EditorWindow implements EditorInterface {
 			@Override
 			public void handle(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				tool.drag(ei, arg0);
-				draw(gc);
-				tool.drawFeedback(ei, gc);
+				if(tool !=null) {
+					tool.drag(ei, arg0);
+					draw(gc);
+					tool.drawFeedback(ei, gc);
+				}
 				
 			}
 			
@@ -138,8 +142,10 @@ public class EditorWindow implements EditorInterface {
 			@Override
 			public void handle(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				tool.release(ei, arg0);
-				draw(gc);
+				if(tool!=null) {
+					tool.release(ei, arg0);
+					draw(gc);
+				}
 			}
 			
 		});

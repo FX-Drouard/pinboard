@@ -16,7 +16,7 @@ public class ToolEllipse implements Tool {
 		// TODO Auto-generated method stub
 		x1=e.getX();
 		y1=e.getY();
-		ce=new ClipEllipse(x1,y1,x1,y1,Color.BLUE);
+		ce=new ClipEllipse(x1,y1,x1,y1,Color.RED);
 	}
 
 	@Override
