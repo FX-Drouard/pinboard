@@ -20,20 +20,27 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import pobj.pinboard.document.Board;
+import pobj.pinboard.document.Clip;
 import pobj.pinboard.editor.tools.Tool;
 import pobj.pinboard.editor.tools.ToolEllipse;
 import pobj.pinboard.editor.tools.ToolRect;
+import pobj.pinboard.editor.tools.ToolSelection;
 
-public class EditorWindow implements EditorInterface {
+public class EditorWindow implements EditorInterface,ClipboardListener {
 	private Stage stage;
 	private Board board;
 	private Tool tool;
+	private Selection select=new Selection();
+	private MenuItem paste=new MenuItem("Paste");
 
 	
 	public EditorWindow(Stage stage){
+		
 		this.stage=stage;
 		this.board=new Board();
 		EditorInterface ei=(EditorInterface) this;
+		ClipboardListener ci=(ClipboardListener) this;
+		Clipboard.getInstance().addListener(ci);
 		
 		Canvas canvas = new Canvas(800, 600);
 		GraphicsContext gc=canvas.getGraphicsContext2D();
@@ -44,12 +51,14 @@ public class EditorWindow implements EditorInterface {
 		listb.add(new Button("Box"));
 		listb.add(new Button("Ellipse"));
 		listb.add(new Button("Image"));
+		listb.add(new Button(" Select "));
 		ToolBar tb= new ToolBar();
 		
 		
 		
 		//Attention l'ordre des elements comptent
-		vbox.getChildren().addAll(mb,tb,canvas, new Separator(), new Label ("Actuellement Vide"));
+		Label labt= new Label("Actuellement Vide");
+		vbox.getChildren().addAll(mb,tb,canvas, new Separator(), labt);
 		
 		
 		//Menu button
@@ -63,22 +72,105 @@ public class EditorWindow implements EditorInterface {
 			}
 		});
 		
+		
 		mb.getMenus().get(0).getItems().add(itemn);
+		
+		//Edit menu
 		MenuItem itemc= new MenuItem("Close");
 		itemc.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
 			public void handle(ActionEvent arg0) {
 				// TODO Auto-generated method stub
+				Clipboard.getInstance().removeListener(ci);
 				stage.close();
 			}
 		});
 		mb.getMenus().get(1).getItems().add(itemc);
 		
+		//Menu edit
+		Menu ed=mb.getMenus().get(1);
+		
+		MenuItem cop=new MenuItem("Copy");
+		cop.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				Clipboard.getInstance().copyToClipboard(board.getContents());
+			}
+			
+		});
+		ed.getItems().add(cop);
+		
+		
+		if(Clipboard.getInstance().isEmpty()) {
+			paste.setDisable(true);
+		}
+		paste.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				List<Clip> cp=Clipboard.getInstance().copyFromClipboard();
+				board.addClip(cp);
+			}
+			
+		});
+		ed.getItems().add(paste);
+		
+		MenuItem delete=new MenuItem("Delete");
+		delete.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				Clipboard.getInstance().clear();
+			}
+			
+		});
+		ed.getItems().add(delete);
+		
+		
+		//Menu tool
+		Menu tl=mb.getMenus().get(2);
+		
+		MenuItem rec=new MenuItem("Rectangle");
+		rec.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				if(!(tool instanceof ToolRect)) {
+					tool = new ToolRect();
+					labt.setText(tool.getName(ei));
+				}
+			}
+			
+		});
+		tl.getItems().add(rec);
+		
+		MenuItem ell=new MenuItem("Ellipse");
+		ell.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				if(!(tool instanceof ToolEllipse)) {
+					tool = new ToolEllipse();
+					labt.setText(tool.getName(ei));
+				}
+			}
+			
+		});
+		tl.getItems().add(ell);
+		
+		
 		Label lb=(Label)vbox.getChildren().get(4);
 		if(lb instanceof Label) {
 			lb=(Label) lb;
 		}
+	
 		
 		
 		//Creation of tools
@@ -89,7 +181,7 @@ public class EditorWindow implements EditorInterface {
 				// TODO Auto-generated method stub
 				if(!(tool instanceof ToolRect)) {
 					tool = new ToolRect();
-					
+					labt.setText(tool.getName(ei));
 				}
 			}
 			
@@ -102,8 +194,23 @@ public class EditorWindow implements EditorInterface {
 				// TODO Auto-generated method stub
 				if(!(tool instanceof ToolEllipse)) {
 					tool = new ToolEllipse();
+					labt.setText(tool.getName(ei));
 				}
 			}
+		});
+		
+		listb.get(3).setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				if(!(tool instanceof ToolSelection)) {
+					tool = new ToolSelection();
+					labt.setText(tool.getName(ei));
+				}
+				
+			}
+			
 		});
 		
 		tb.getItems().addAll(listb);
@@ -172,13 +279,23 @@ public class EditorWindow implements EditorInterface {
 	@Override
 	public Selection getSelection() {
 		// TODO Auto-generated method stub
-		return null;
+		return select;
 	}
 
 	@Override
 	public CommandStack getUndoStack() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void clipboardChanged() {
+		// TODO Auto-generated method stub
+		if(Clipboard.getInstance().isEmpty()) {
+			paste.setDisable(true);
+		}else {
+			paste.setDisable(false);
+		}
 	}
 	
 	
