@@ -43,11 +43,20 @@ public class Selection {
 	}
 	
 	public void drawFeedBack(GraphicsContext gc) {
-		gc.setFill(Color.WHITE);
-		gc.fillRect(0,0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
-		gc.setStroke(Color.BLACK);
-		for(Clip c: selection) {
-			c.draw(gc);
+		if(!selection.isEmpty()) {	
+			double top=selection.get(0).getTop();
+			double bottom=selection.get(0).getBottom();
+			double right=selection.get(0).getRight();
+			double left=selection.get(0).getLeft();
+			for(Clip c: selection) {
+				c.draw(gc);
+				if(c.getTop()<top) top=c.getTop();
+				if(c.getLeft()<left) left=c.getLeft();
+				if(c.getBottom()>bottom) bottom =c.getBottom();
+				if(c.getRight()>right) right =c.getRight();
+			}
+			gc.setStroke(Color.BLACK);
+			gc.strokeRect(left, top, right-left, bottom-top);
 		}
 	}
 
