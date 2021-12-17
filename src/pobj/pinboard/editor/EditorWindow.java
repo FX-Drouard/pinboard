@@ -32,6 +32,7 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 	private Tool tool;
 	private Selection select=new Selection();
 	private MenuItem paste=new MenuItem("Paste");
+	private GraphicsContext gc;
 
 	
 	public EditorWindow(Stage stage){
@@ -43,7 +44,7 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 		Clipboard.getInstance().addListener(ci);
 		
 		Canvas canvas = new Canvas(800, 600);
-		GraphicsContext gc=canvas.getGraphicsContext2D();
+		gc=canvas.getGraphicsContext2D();
 		MenuBar mb= new MenuBar(new Menu("File"),new Menu("Edit"), new Menu("Tools"));
 		VBox vbox= new VBox();
 		Scene scene=new Scene(vbox);
@@ -51,6 +52,7 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 		listb.add(new Button("Box"));
 		listb.add(new Button("Ellipse"));
 		listb.add(new Button("Image"));
+		listb.get(2).setDisable(true);
 		listb.add(new Button(" Select "));
 		ToolBar tb= new ToolBar();
 		
@@ -114,6 +116,7 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 				// TODO Auto-generated method stub
 				List<Clip> cp=Clipboard.getInstance().copyFromClipboard();
 				board.addClip(cp);
+				board.draw(gc);
 			}
 			
 		});
@@ -125,7 +128,7 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 			@Override
 			public void handle(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				Clipboard.getInstance().clear();
+				board.removeClip(select.getContents());
 			}
 			
 		});
@@ -227,6 +230,9 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 				if(tool!=null) {
 					tool.press(ei, arg0);
 				}
+				if(tool instanceof ToolSelection) {
+					tool.drawFeedback(ei, gc);
+				}
 			}
 			
 		});
@@ -293,8 +299,10 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 		// TODO Auto-generated method stub
 		if(Clipboard.getInstance().isEmpty()) {
 			paste.setDisable(true);
+			board.draw(gc);
 		}else {
 			paste.setDisable(false);
+			board.draw(gc);
 		}
 	}
 	
