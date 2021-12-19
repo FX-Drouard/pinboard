@@ -21,6 +21,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import pobj.pinboard.document.Board;
 import pobj.pinboard.document.Clip;
+import pobj.pinboard.document.ClipGroup;
+import pobj.pinboard.editor.commands.CommandAdd;
+import pobj.pinboard.editor.commands.CommandGroup;
+import pobj.pinboard.editor.commands.CommandUngroup;
 import pobj.pinboard.editor.tools.Tool;
 import pobj.pinboard.editor.tools.ToolEllipse;
 import pobj.pinboard.editor.tools.ToolRect;
@@ -33,6 +37,9 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 	private Selection select=new Selection();
 	private MenuItem paste=new MenuItem("Paste");
 	private GraphicsContext gc;
+	private CommandStack cs=new CommandStack();
+	private MenuItem undo=new MenuItem("Undo");
+	private MenuItem redo=new MenuItem("Redo");
 
 	
 	public EditorWindow(Stage stage){
@@ -53,7 +60,7 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 		listb.add(new Button("Ellipse"));
 		listb.add(new Button("Image"));
 		listb.get(2).setDisable(true);
-		listb.add(new Button(" Select "));
+		listb.add(new Button("Select"));
 		ToolBar tb= new ToolBar();
 		
 		
@@ -99,7 +106,7 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 			@Override
 			public void handle(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				Clipboard.getInstance().copyToClipboard(board.getContents());
+				Clipboard.getInstance().copyToClipboard(select.getContents());
 			}
 			
 		});
@@ -115,7 +122,11 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 			public void handle(ActionEvent arg0) {
 				// TODO Auto-generated method stub
 				List<Clip> cp=Clipboard.getInstance().copyFromClipboard();
-				board.addClip(cp);
+				CommandAdd cpa=new CommandAdd(ei, cp);
+				cpa.execute();
+				cs.addCommand(cpa);
+				
+				//board.addClip(cp);
 				board.draw(gc);
 			}
 			
@@ -129,10 +140,89 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 			public void handle(ActionEvent arg0) {
 				// TODO Auto-generated method stub
 				board.removeClip(select.getContents());
+				board.draw(gc);
 			}
 			
 		});
 		ed.getItems().add(delete);
+		
+		MenuItem grp = new MenuItem("Group");
+		grp.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				List<Clip> lc=select.getContents();
+				/*board.removeClip(select.getContents());
+				ClipGroup test=new ClipGroup();
+				for(Clip cps: lc) {
+					test.addClip(cps.copy());
+				}*/
+				//board.addClip(test);
+				CommandGroup cgg=new CommandGroup(ei,lc);
+				cgg.execute();
+				cs.addCommand(cgg);
+				
+				board.draw(gc);
+				
+			}
+			
+		});
+		ed.getItems().add(grp);
+		
+		MenuItem ugrp = new MenuItem("Ungroup");
+		ugrp.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				List<ClipGroup> cgup= new ArrayList<>();
+				for(Clip elem: select.getContents()) {
+					if(elem instanceof ClipGroup) {
+						cgup.add((ClipGroup) elem);
+						//ClipGroup lc=(ClipGroup)elem;
+						//board.removeClip(elem);
+						//List<Clip> tor=lc.getClips();
+						//board.addClip(tor);
+					}
+				}
+				
+				CommandUngroup cuu=new CommandUngroup(ei,cgup);
+				cuu.execute();
+				cs.addCommand(cuu);
+				board.draw(gc);
+				
+			}
+			
+		});
+		ed.getItems().add(ugrp);
+		
+
+		undo.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				if(!cs.isUndoEmpty()) cs.undo();
+				board.draw(gc);
+			}
+			
+		});;
+		ed.getItems().add(undo);
+		
+
+		redo.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				if(!cs.isRedoEmpty()) cs.redo();
+				board.draw(gc);
+			}
+			
+		});;
+		ed.getItems().add(redo);
+		
 		
 		
 		//Menu tool
@@ -291,7 +381,7 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 	@Override
 	public CommandStack getUndoStack() {
 		// TODO Auto-generated method stub
-		return null;
+		return cs;
 	}
 
 	@Override
@@ -304,6 +394,8 @@ public class EditorWindow implements EditorInterface,ClipboardListener {
 			paste.setDisable(false);
 			board.draw(gc);
 		}
+		
+		
 	}
 	
 	

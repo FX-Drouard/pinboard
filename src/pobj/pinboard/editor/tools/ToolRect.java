@@ -5,7 +5,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import pobj.pinboard.document.ClipRect;
+import pobj.pinboard.editor.CommandStack;
 import pobj.pinboard.editor.EditorInterface;
+import pobj.pinboard.editor.commands.CommandAdd;
+import pobj.pinboard.editor.commands.CommandMove;
 
 public class ToolRect implements Tool{
 	private ClipRect cr;
@@ -48,7 +51,12 @@ public class ToolRect implements Tool{
 	@Override
 	public void release(EditorInterface i, MouseEvent e) {
 		// TODO Auto-generated method stub
-		i.getBoard().addClip(cr);
+		//i.getBoard().addClip(cr);
+		
+		CommandStack stack = i.getUndoStack();
+		CommandAdd ca= new CommandAdd(i,cr);
+		ca.execute();
+		stack.addCommand(ca);
 		
 	}
 
